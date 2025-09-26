@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - Warehouse System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Reports & Exports</h2>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Transaction Reports -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-arrow-left-right"></i> Transaction Reports</h5>
+            </div>
+            <div class="card-body">
+                <p>Export transaction data with optional filters</p>
+                
+                <form id="transactionExportForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" class="form-control" name="start_date">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">End Date</label>
+                                <input type="date" class="form-control" name="end_date">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Warehouse (Optional)</label>
+                        <select class="form-select" name="warehouse_id">
+                            <option value="">All Warehouses</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-download"></i> Export Transactions
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Inventory Reports -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-box"></i> Inventory Reports</h5>
+            </div>
+            <div class="card-body">
+                <p>Export current inventory status</p>
+                
+                <form id="inventoryExportForm">
+                    <div class="mb-3">
+                        <label class="form-label">Warehouse (Optional)</label>
+                        <select class="form-select" name="warehouse_id">
+                            <option value="">All Warehouses</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-download"></i> Export Inventory
+                    </button>
+                </form>
+                
+                <hr>
+                
+                <div class="d-grid">
+                    <a href="{{ url_for('reports.export_low_stock') }}" class="btn btn-warning">
+                        <i class="bi bi-exclamation-triangle"></i> Export Low Stock Items
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Reports -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-lightning"></i> Quick Reports</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('reports.export_transactions') }}" class="btn btn-outline-primary">
+                                <i class="bi bi-journal"></i><br>
+                                All Transactions
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('reports.export_inventory') }}" class="btn btn-outline-success">
+                                <i class="bi bi-boxes"></i><br>
+                                Full Inventory
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('reports.export_low_stock') }}" class="btn btn-outline-warning">
+                                <i class="bi bi-exclamation-diamond"></i><br>
+                                Low Stock Alert
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('reports.export_transactions') }}?start_date={{ start_date }}" 
+                               class="btn btn-outline-info">
+                                <i class="bi bi-clock-history"></i><br>
+                                Last 30 Days
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load warehouses for dropdowns
+fetch('{{ url_for("api.get_warehouses") }}')
+    .then(response => response.json())
+    .then(warehouses => {
+        const selects = document.querySelectorAll('select[name="warehouse_id"]');
+        selects.forEach(select => {
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('option');
+                option.value = warehouse.id;
+                option.textContent = warehouse.name;
+                select.appendChild(option);
+            });
+        });
+    });
+
+// Handle form submissions
+document.getElementById('transactionExportForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const params = new URLSearchParams();
+    
+    for (let [key, value] of formData.entries()) {
+        if (value) params.append(key, value);
+    }
+    
+    window.location.href = '{{ url_for("reports.export_transactions") }}?' + params.toString();
+});
+
+document.getElementById('inventoryExportForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const params = new URLSearchParams();
+    
+    for (let [key, value] of formData.entries()) {
+        if (value) params.append(key, value);
+    }
+    
+    window.location.href = '{{ url_for("reports.export_inventory") }}?' + params.toString();
+});
+</script>
+{% endblock %}

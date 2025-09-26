@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Items - Warehouse System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Items</h2>
+    {% if current_user.can_create_items() %}
+    <a href="{{ url_for('items.create_item') }}" class="btn btn-success">
+        Add Item
+    </a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if items.items %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>SSID</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Warehouse</th>
+                        <th>Stock</th>
+                        <th>Unit</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items.items %}
+                    <tr class="{{ 'table-warning' if item.is_low_stock }}">
+                        <td><strong>{{ item.ssid }}</strong></td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.category.name }}</td>
+                        <td>{{ item.warehouse.name }}</td>
+                        <td>
+                            {{ item.current_stock }}
+                            {% if item.is_low_stock %}
+                            <span class="badge bg-danger ms-1">LOW</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.unit }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'danger' if item.is_low_stock else 'success' }}">
+                                {{ 'Low Stock' if item.is_low_stock else 'OK' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('items.generate_qr', id=item.id) }}" 
+                                   class="btn btn-sm btn-info" title="Generate QR Code">
+                                    <i class="bi bi-qr-code"></i>
+                                </a>
+                                {% if current_user.can_create_items() %}
+                                <a href="{{ url_for('items.edit_item', id=item.id) }}" 
+                                   class="btn btn-sm btn-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{{ url_for('items.delete_item', id=item.id) }}" 
+                                   class="btn btn-sm btn-danger" title="Delete"
+                                   onclick="return confirm('Are you sure?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if items.pages > 1 %}
+        <nav aria-label="Items pagination">
+            <ul class="pagination justify-content-center">
+                {% if items.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('items.list_items', page=items.prev_num) }}">Previous</a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in items.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != items.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('items.list_items', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">…</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if items.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('items.list_items', page=items.next_num) }}">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center">
+            <i class="bi bi-box fs-1 text-muted"></i>
+            <h4 class="text-muted">No items found</h4>
+            {% if current_user.can_create_items() %}
+            <a href="{{ url_for('items.create_item') }}" class="btn btn-primary">
+                Create your first item
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

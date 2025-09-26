@@ -1,0 +1,109 @@
+/* Custom styles for Warehouse Inventory System */
+
+body {
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.table-warning {
+    --bs-table-accent-bg: #fff3cd;
+}
+
+.btn-group .btn {
+    margin-right: 2px;
+}
+
+.btn-group .btn:last-child {
+    margin-right: 0;
+}
+
+/* Dashboard stats cards */
+.bg-primary .fs-1 {
+    opacity: 0.8;
+}
+
+.bg-success .fs-1 {
+    opacity: 0.8;
+}
+
+.bg-info .fs-1 {
+    opacity: 0.8;
+}
+
+.bg-danger .fs-1 {
+    opacity: 0.8;
+}
+
+.bg-secondary .fs-1 {
+    opacity: 0.8;
+}
+
+/* QR Code display */
+.qr-code-container {
+    text-align: center;
+    padding: 20px;
+}
+
+.qr-code-container img {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px;
+    background: white;
+}
+
+/* Low stock highlighting */
+.table-warning td {
+    border-color: #f5c6cb;
+}
+
+/* Form styling */
+.form-label {
+    font-weight: 600;
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 20px;
+}
+
+/* Alert styling */
+.alert {
+    border-radius: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        margin-bottom: 2px;
+        margin-right: 0;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Custom badge sizes */
+.badge.fs-6 {
+    font-size: 0.75rem !important;
+}
