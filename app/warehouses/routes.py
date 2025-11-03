@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.warehouses import bp
 from app.models import Warehouse, db
@@ -34,16 +34,14 @@ def create_warehouse():
 @bp.route('/delete/<int:id>')
 @login_required
 def delete_warehouse(id):
-    if not current_user.can_create_warehouse():
-        flash('Access denied. Admin privileges required.', 'danger')
+    # Allow managers to delete warehouses OR admins always
+    if not (current_user.can_manage_warehouses() or getattr(current_user, 'can_manage_users', lambda: False)()):
+        flash('Access denied. Manager or Admin privileges required.', 'danger')
         return redirect(url_for('warehouses.list_warehouses'))
-    
+
     warehouse = Warehouse.query.get_or_404(id)
-    if warehouse.items:
-        flash(f'Cannot delete warehouse "{warehouse.name}" - it contains items.', 'danger')
-        return redirect(url_for('warehouses.list_warehouses'))
-    
+    # perform deletion (cascade settings as per models)
     db.session.delete(warehouse)
     db.session.commit()
-    flash(f'Warehouse "{warehouse.name}" deleted successfully!', 'success')
+    flash(f'Warehouse "{warehouse.name}" deleted.', 'success')
     return redirect(url_for('warehouses.list_warehouses'))

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Sellers - Warehouse System{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <h3>Sellers</h3>
+    <ul class="list-group">
+      {% for s in sellers %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong>{{ s.name }}</strong><br>
+          {% if s.email %}<small>{{ s.email }}</small>{% endif %}
+          {% if s.phone %}<small> · {{ s.phone }}</small>{% endif %}
+        </div>
+        <div>
+          <!-- future: edit/delete buttons -->
+        </div>
+      </li>
+      {% else %}
+      <li class="list-group-item">No sellers yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="col-md-6">
+    <h3>Create Seller</h3>
+    <form method="post" action="{{ url_for('sellers.create') }}">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">{{ form.name.label }}{{ form.name(class="form-control") }}</div>
+      <div class="mb-3">{{ form.email.label }}{{ form.email(class="form-control") }}</div>
+      <div class="mb-3">{{ form.phone.label }}{{ form.phone(class="form-control") }}</div>
+      <button class="btn btn-primary">{{ form.submit.label.text }}</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

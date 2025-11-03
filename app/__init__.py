@@ -52,5 +52,12 @@ def create_app():
     
     from app.api import bp as api_bp
     app.register_blueprint(api_bp, url_prefix='/api')
+
+    # Register new blueprints
+    from app.sellers import bp as sellers_bp
+    app.register_blueprint(sellers_bp, url_prefix='/sellers')
+
+    from app.payments import bp as payments_bp
+    app.register_blueprint(payments_bp, url_prefix='/payments')
     
     return app

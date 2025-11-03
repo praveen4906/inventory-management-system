@@ -133,3 +133,30 @@ class Transaction(db.Model):
     
     def __repr__(self):
         return f'<Transaction {self.transaction_type.value}: {self.quantity} of {self.item.ssid}>'
+
+class Seller(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), nullable=False)
+    email = db.Column(db.String(120))
+    phone = db.Column(db.String(30))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    payments = db.relationship('Payment', backref='seller', lazy='dynamic')
+
+    def __repr__(self):
+        return f'<Seller {self.name}>'
+
+class Payment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    amount = db.Column(db.Numeric(12, 2), nullable=False)
+    currency = db.Column(db.String(10), default='USD')
+    method = db.Column(db.String(50))  # e.g., 'card', 'bank-transfer', 'cash'
+    status = db.Column(db.String(30), default='pending')  # e.g., pending, completed, refunded
+    notes = db.Column(db.Text)
+    seller_id = db.Column(db.Integer, db.ForeignKey('seller.id'), nullable=True)
+    processed_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Payment {self.id} {self.amount} {self.currency}>'

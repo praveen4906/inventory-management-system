@@ -1,10 +1,13 @@
-from flask import render_template, redirect, url_for, flash, send_file, current_app, request
+from flask import render_template, redirect, url_for, flash, send_file, current_app, request, jsonify
 from flask_login import login_required, current_user
 from app.items import bp
 from app.models import Item, Warehouse, Category, db
 from app.items.forms import CreateItemForm, EditItemForm
 from app.utils import generate_qr_code
 import os
+import uuid
+from datetime import datetime
+from flask import abort
 
 @bp.route('/')
 @login_required
@@ -104,16 +107,27 @@ def download_qr(filename):
         flash('QR code file not found.', 'danger')
         return redirect(url_for('items.list_items'))
 
+@bp.route('/generate-ssid', methods=['GET'])
+@login_required
+def generate_ssid():
+    """Return a unique SSID (GET for AJAX usage)."""
+    for _ in range(10):
+        ssid = datetime.utcnow().strftime('SSID%Y%m%d%H%M%S') + '-' + uuid.uuid4().hex[:6].upper()
+        if not Item.query.filter_by(ssid=ssid).first():
+            return jsonify({'ssid': ssid})
+    return jsonify({'error': 'unable to generate unique ssid'}), 500
+
 @bp.route('/delete/<int:id>')
 @login_required
 def delete_item(id):
-    if not current_user.can_create_items():
+    # Admin can always delete; otherwise require normal permission
+    is_admin = getattr(current_user, 'can_manage_users', lambda: False)()
+    if not (is_admin or current_user.can_create_items()):
         flash('Access denied. Manager or Admin privileges required.', 'danger')
         return redirect(url_for('items.list_items'))
-    
+
     item = Item.query.get_or_404(id)
-    # Deleting the item will cascade delete its transactions (configured in models)
     db.session.delete(item)
     db.session.commit()
-    flash(f'Item "{item.ssid}" and all related transactions were deleted.', 'success')
+    flash(f'Item "{item.ssid}" deleted.', 'success')
     return redirect(url_for('items.list_items'))

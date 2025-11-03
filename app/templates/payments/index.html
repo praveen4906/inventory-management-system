@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Payments - Warehouse System{% endblock %}
+{% block content %}
+<h3>Payments</h3>
+<table class="table">
+  <thead><tr><th>ID</th><th>Amount</th><th>Seller</th><th>Status</th><th>Date</th></tr></thead>
+  <tbody>
+  {% for p in payments %}
+    <tr>
+      <td>{{ p.id }}</td>
+      <td>{{ p.amount }} {{ p.currency }}</td>
+      <td>{{ p.seller.name if p.seller else '-' }}</td>
+      <td>{{ p.status }}</td>
+      <td>{{ p.created_at }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5">No payments.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<a class="btn btn-primary" href="{{ url_for('payments.create') }}">Record Payment</a>
+{% endblock %}
