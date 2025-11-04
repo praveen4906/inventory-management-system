@@ -19,4 +19,8 @@
   </tbody>
 </table>
 <a class="btn btn-primary" href="{{ url_for('payments.create') }}">Record Payment</a>
+<div class="btn-group ms-2" role="group">
+  <a class="btn btn-outline-secondary" href="{{ url_for('payments.export', format='csv') }}">Export CSV</a>
+  <a class="btn btn-outline-secondary" href="{{ url_for('payments.export', format='json') }}">Export JSON</a>
+</div>
 {% endblock %}

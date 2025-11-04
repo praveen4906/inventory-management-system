@@ -26,7 +26,7 @@
         {{ form.ssid.label(class="form-label") }}
         <div class="input-group">
           {{ form.ssid(class="form-control", id="ssidInput", placeholder="Leave empty to auto-generate") }}
-          <button type="button" id="genSsidBtn" class="btn btn-outline-secondary">Generate SSID</button>
+          <button type="button" id="genSsidBtn" class="btn btn-outline-secondary">Generate SKU</button>
         </div>
       </div>
 
@@ -92,7 +92,7 @@ if (genBtn) {
               const input = document.getElementById('ssidInput');
               if (input) input.value = data.ssid;
           } else {
-              alert(data.error || 'Could not generate SSID');
+              alert(data.error || 'Could not generate SKU');
           }
       } catch (err) {
           console.error(err);
