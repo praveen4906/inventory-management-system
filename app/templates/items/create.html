@@ -5,27 +5,72 @@
 <div class="row">
   <div class="col-md-8">
     <h3>Create Item</h3>
-    <form method="post">
+
+    <!-- show form errors -->
+    {% if form.errors %}
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+      {% for field, errors in form.errors.items() %}
+        {% for error in errors %}
+          <li><strong>{{ field }}:</strong> {{ error }}</li>
+        {% endfor %}
+      {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
       {{ form.hidden_tag() }}
+
       <div class="mb-3">
         {{ form.ssid.label(class="form-label") }}
         <div class="input-group">
-          {{ form.ssid(class="form-control", id="ssidInput") }}
+          {{ form.ssid(class="form-control", id="ssidInput", placeholder="Leave empty to auto-generate") }}
           <button type="button" id="genSsidBtn" class="btn btn-outline-secondary">Generate SSID</button>
         </div>
       </div>
 
       <div class="mb-3">
         {{ form.name.label(class="form-label") }}
-        {{ form.name(class="form-control") }}
+        {{ form.name(class="form-control", placeholder="Item name") }}
       </div>
 
       <div class="mb-3">
         {{ form.category.label(class="form-label") }}
-        {{ form.category(class="form-control") }}
+        {{ form.category(class="form-control", placeholder="Category or select existing") }}
       </div>
-      <!-- add other form fields as needed -->
+
+      <div class="mb-3">
+        {{ form.warehouse_id.label(class="form-label") }}
+        {{ form.warehouse_id(class="form-select") }}
+      </div>
+
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          {{ form.unit.label(class="form-label") }}
+          {{ form.unit(class="form-control", placeholder="e.g., pcs, kg") }}
+        </div>
+        <div class="col-md-4 mb-3">
+          {{ form.unit_price.label(class="form-label") }}
+          {{ form.unit_price(class="form-control", placeholder="Unit price") }}
+        </div>
+        <div class="col-md-3 mb-3">
+          {{ form.reorder_level.label(class="form-label") }}
+          {{ form.reorder_level(class="form-control", placeholder="Reorder threshold") }}
+        </div>
+        <div class="col-md-3 mb-3">
+          {{ form.initial_stock.label(class="form-label") }}
+          {{ form.initial_stock(class="form-control", placeholder="Initial stock quantity") }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        {{ form.description.label(class="form-label") }}
+        {{ form.description(class="form-control", rows="3") }}
+      </div>
+
       <button class="btn btn-primary" type="submit">Create</button>
+      <a href="{{ url_for('items.list_items') }}" class="btn btn-secondary">Cancel</a>
     </form>
   </div>
 </div>
@@ -33,25 +78,30 @@
 
 {% block scripts %}
 <script>
-document.getElementById('genSsidBtn').addEventListener('click', async () => {
-    const btn = document.getElementById('genSsidBtn');
-    btn.disabled = true;
-    btn.textContent = 'Generating...';
-    try {
-        const resp = await fetch('{{ url_for("items.generate_ssid") }}', { method: 'GET', headers: { 'Accept': 'application/json' } });
-        const data = await resp.json();
-        if (resp.ok && data.ssid) {
-            document.getElementById('ssidInput').value = data.ssid;
-        } else {
-            alert(data.error || 'Could not generate SSID');
-        }
-    } catch (err) {
-        console.error(err);
-        alert('Network error generating SSID');
-    } finally {
-        btn.disabled = false;
-        btn.textContent = 'Generate SSID';
-    }
-});
+const genBtn = document.getElementById('genSsidBtn');
+if (genBtn) {
+  genBtn.addEventListener('click', async () => {
+      const btn = genBtn;
+      btn.disabled = true;
+      const original = btn.textContent;
+      btn.textContent = 'Generating...';
+      try {
+          const resp = await fetch('{{ url_for("items.generate_ssid") }}', { method: 'GET', headers: { 'Accept': 'application/json' } });
+          const data = await resp.json();
+          if (resp.ok && data.ssid) {
+              const input = document.getElementById('ssidInput');
+              if (input) input.value = data.ssid;
+          } else {
+              alert(data.error || 'Could not generate SSID');
+          }
+      } catch (err) {
+          console.error(err);
+          alert('Network error generating SSID');
+      } finally {
+          btn.disabled = false;
+          btn.textContent = original;
+      }
+  });
+}
 </script>
 {% endblock %}
